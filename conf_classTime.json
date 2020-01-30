@@ -1,40 +1,32 @@
 {
-  "classTime": [
-    {
-        "id":1, 
-		"name":"第 1、2 节",
-        "startTime":"0820",
-        "endTime":"0955"
+    "1": {
+        "name": "第 1、2 节",
+        "startTime": "082000",
+        "endTime": "095500"
     },
-    {
-        "id":2, 
-		"name":"第 3、4 节",
-        "startTime":"1015",
-        "endTime":"1150"
+    "2": {
+        "name": "第 3、4 节",
+        "startTime": "101500",
+        "endTime": "115000"
     },
-    {
-        "id":3,
-		"name":"第 5、6 节",
-        "startTime":"1300",
-        "endTime":"1435"
+    "3": {
+        "name": "第 5、6 节",
+        "startTime": "130000",
+        "endTime": "143500"
     },
-    {
-        "id":4,
-		"name":"第 7、8 节",
-        "startTime":"1455",
-        "endTime":"1630"
+    "4": {
+        "name": "第 7、8 节",
+        "startTime": "145500",
+        "endTime": "163000"
     },
-    {
-        "id":5,
-		"name":"第 9、10 节",
-        "startTime":"1800",
-        "endTime":"1935"
+    "5": {
+        "name": "第 9、10 节",
+        "startTime": "180000",
+        "endTime": "193500"
     },
-    {
-        "id":6,
-		"name":"第 9、10、11 节",
-        "startTime":"1800",
-        "endTime":"2025"
+    "6": {
+        "name": "第 9、10、11 节",
+        "startTime": "180000",
+        "endTime": "202500"
     }
-  ]
 }
