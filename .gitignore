@@ -123,3 +123,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# ignore temporary files
+conf_classInfo*.json
+*.ics
