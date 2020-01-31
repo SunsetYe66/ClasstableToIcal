@@ -132,7 +132,6 @@ with open(f"res-{str(f_random)}.ics", "a", encoding='UTF-8') as f:
     print(f"尾部信息写入成功！")
     f.close()
 
-# todo:写入utf-8？
 final_inform = f'''
 最终文件 res-{str(f_random)}.ics 已生成，可通过内网传输到 iOS Device 上使用。
 方法：
