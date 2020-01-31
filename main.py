@@ -1,290 +1,131 @@
-# coding: utf-8
-#!/usr/bin/python
-
-import datetime
 import json
 import sys
-import time
-from random import Random
-
-__author__ = 'ChanJH'
-__site__ = 'chanjh.com'
-
-checkFirstWeekDate = 0
-checkReminder = 1
-
-YES = 0
-NO = 1
-
-DONE_firstWeekDate = time.time()
-DONE_reminder = ""
-DONE_EventUID = ""
-DONE_UnitUID = ""
-DONE_CreatedTime = ""
-DONE_ALARMUID = ""
+from datetime import datetime, timedelta
+from uuid import uuid4 as uid
+from random import randint
+import socket
 
 
-classTimeList = []
-classInfoList = []
-
-def main():
-    
-	basicSetting();
-	uniteSetting();
-	classInfoHandle();
-	icsCreateAndSave();
-
-def classICSCreate(classInfo):
-	global classTimeList, DONE_ALARMUID, DONE_UnitUID
-	i = int(classInfo["classTime"]-1)
-	className = classInfo["className"]+"|"+classTimeList[i]["name"]+"|"+classInfo["classroom"]
-	endTime = classTimeList[i]["endTime"]
-	startTime = classTimeList[i]["startTime"]
-	for date in classInfo["date"]:
-		eventString = "BEGIN:VEVENT\nCREATED:"+classInfo["CREATED"]
-		eventString = eventString+"\nUID:"+classInfo["UID"]
-		eventString = eventString+"\nDTEND;TZID=Asia/Shanghai:"+date+"T"+endTime
-		eventString = eventString+"00\nTRANSP:OPAQUE\nX-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\nSUMMARY:"+className
-		eventString = eventString+"\nDTSTART;TZID=Asia/Shanghai:"+date+"T"+startTime+"00"
-		eventString = eventString+"\nDTSTAMP:"+DONE_CreatedTime
-		eventString = eventString+"\nSEQUENCE:0\nBEGIN:VALARM\nX-WR-ALARMUID:"+DONE_ALARMUID
-		eventString = eventString+"\nUID:"+DONE_UnitUID
-		eventString = eventString+"\nTRIGGER:"+DONE_reminder
-		eventString = eventString+"\nDESCRIPTION:事件提醒\nACTION:DISPLAY\nEND:VALARM\nEND:VEVENT\n"
-		return eventString
-	print("classICSCreate")		
-	
-
-def save(string):
-     f = open("class.ics", 'wb')
-     f.write(string.encode("utf-8"))
-     f.close()
-
-def icsCreateAndSave():
-	icsString = "BEGIN:VCALENDAR\nMETHOD:PUBLISH\nVERSION:2.0\nX-WR-CALNAME:课程表\nPRODID:-//Apple Inc.//Mac OS X 10.12//EN\nX-APPLE-CALENDAR-COLOR:#FC4208\nX-WR-TIMEZONE:Asia/Shanghai\nCALSCALE:GREGORIAN\nBEGIN:VTIMEZONE\nTZID:Asia/Shanghai\nBEGIN:STANDARD\nTZOFFSETFROM:+0900\nRRULE:FREQ=YEARLY;UNTIL=19910914T150000Z;BYMONTH=9;BYDAY=3SU\nDTSTART:19890917T000000\nTZNAME:GMT+8\nTZOFFSETTO:+0800\nEND:STANDARD\nBEGIN:DAYLIGHT\nTZOFFSETFROM:+0800\nDTSTART:19910414T000000\nTZNAME:GMT+8\nTZOFFSETTO:+0900\nRDATE:19910414T000000\nEND:DAYLIGHT\nEND:VTIMEZONE\n"
-	global classTimeList, DONE_ALARMUID, DONE_UnitUID
-	eventString = ""
-	for classInfo in classInfoList :
-		i = int(classInfo["classTime"]-1)
-		className = classInfo["className"]+"|"+classTimeList[i]["name"]+"|"+classInfo["classroom"]
-		endTime = classTimeList[i]["endTime"]
-		startTime = classTimeList[i]["startTime"]
-		index = 0
-		for date in classInfo["date"]:
-			eventString = eventString+"BEGIN:VEVENT\nCREATED:"+classInfo["CREATED"]
-			eventString = eventString+"\nUID:"+classInfo["UID"][index]
-			eventString = eventString+"\nDTEND;TZID=Asia/Shanghai:"+date+"T"+endTime
-			eventString = eventString+"00\nTRANSP:OPAQUE\nX-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\nSUMMARY:"+className
-			eventString = eventString+"\nDTSTART;TZID=Asia/Shanghai:"+date+"T"+startTime+"00"
-			eventString = eventString+"\nDTSTAMP:"+DONE_CreatedTime
-			eventString = eventString+"\nSEQUENCE:0\nBEGIN:VALARM\nX-WR-ALARMUID:"+DONE_ALARMUID
-			eventString = eventString+"\nUID:"+DONE_UnitUID
-			eventString = eventString+"\nTRIGGER:"+DONE_reminder
-			eventString = eventString+"\nDESCRIPTION:事件提醒\nACTION:DISPLAY\nEND:VALARM\nEND:VEVENT\n"
-
-			index += 1
-	icsString = icsString + eventString + "END:VCALENDAR"
-	save(icsString)
-	print("icsCreateAndSave")
-
-def classInfoHandle():
-	global classInfoList
-	global DONE_firstWeekDate
-	i = 0
-
-	for classInfo in classInfoList :
-		# 具体日期计算出来
-
-		startWeek = json.dumps(classInfo["week"]["startWeek"])
-		endWeek = json.dumps(classInfo["week"]["endWeek"])
-		weekday = float(json.dumps(classInfo["weekday"]))
-		
-		dateLength = float((int(startWeek) - 1) * 7)
-		startDate = datetime.datetime.fromtimestamp(int(time.mktime(DONE_firstWeekDate))) + datetime.timedelta(days = dateLength + weekday - 1)
-		string = startDate.strftime('%Y%m%d')
-
-		dateLength = float((int(endWeek) - 1) * 7)
-		endDate = datetime.datetime.fromtimestamp(int(time.mktime(DONE_firstWeekDate))) + datetime.timedelta(days = dateLength + weekday - 1)
-		
-		date = startDate
-		dateList = []
-		dateList.append(string)
-		i = NO
-		while (i):
-			date = date + datetime.timedelta(days = 7.0)
-			if(date > endDate):
-				i = YES
-			else:
-				string = date.strftime('%Y%m%d')
-				dateList.append(string)
-		classInfo["date"] = dateList
-
-		# 设置 UID
-		global DONE_CreatedTime, DONE_EventUID
-		CreateTime()
-		classInfo["CREATED"] = DONE_CreatedTime
-		classInfo["DTSTAMP"] = DONE_CreatedTime
-		UID_List = []
-		for date  in dateList:
-			UID_List.append(UID_Create())
-		classInfo["UID"] = UID_List
-	print("classInfoHandle")
-
-def UID_Create():
-	return random_str(20) + "&Chanjh.com"
+# 获取内网ip用于最后的提示
+def get_host_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('119.29.29.29', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+    return ip
 
 
-def CreateTime():
-	# 生成 CREATED
-	global DONE_CreatedTime
-	date = datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
-	DONE_CreatedTime = date + "Z"
-	# 生成 UID
-	# global DONE_EventUID
-	# DONE_EventUID = random_str(20) + "&Chanjh.com"
+# 读取文件，返回 dict(class_timetable) 时间表
+try:
+    with open("conf_classTime.json", 'r', encoding='UTF-8') as f:
+        class_timetable = json.loads(f.read())
+        f.close()
+except:
+    print("时间配置文件 conf_classTime.json 似乎有点问题")
+    sys.exit()
+# 读取文件，返回 dict(class_info) 课程信息
+try:
+    with open("conf_classInfo.json", 'r') as f:
+        class_info = json.loads(f.read())
+        f.close()
+except:
+    print("课程配置文件 conf_classInfo.json 似乎有点问题")
+    sys.exit()
+# todo:将classinfo改为utf-8
+# 定义参数，不需要每次循环都重新定义的
+first_week = "20200224"
+inform_time = 25
+utc_now = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+f_random = randint(100, 999)
+weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+# ical base 参数
+g_name = f'{datetime.now().strftime("%Y.%m")} 课程表@{socket.gethostname()}'  # 全局课程表名
+g_color = "#ff9500"  # 颜色（可以在 iOS 设备上修改）
+a_trigger = f"-PT{inform_time}M"  # 提醒时间
+# 全局使用的 base
+ical_begin_base = f'''BEGIN:VCALENDAR
+VERSION:2.0
+X-WR-CALNAME:{g_name}
+X-APPLE-CALENDAR-COLOR:{g_color}
+'''
+ical_end_base = "\nEND:VCALENDAR"
 
-	print("CreateTime")
+# 开始操作，先写入头
+try:
+    with open(f"res-{str(f_random)}.ics", "w", encoding='UTF-8') as f:  # 追加要a
+        f.write(ical_begin_base)
+        f.close()
+except:
+    print("写入失败！可能是没有权限，请重试。")
+    sys.exit()
+else:
+    print("文件头写入成功！")
 
-def uniteSetting():
-	# 
-	global DONE_ALARMUID
-	DONE_ALARMUID = random_str(30) + "&Chanjh.com"
-	# 
-	global DONE_UnitUID
-	DONE_UnitUID = random_str(20) + "&Chanjh.com"
-	print("uniteSetting")
+initial_time = datetime.strptime(first_week, "%Y%m%d")
+i = 1
+for obj in class_info:
+    # 计算课程第一次开始的日期 first_time_obj，公式：7*(开始周数-2) （//把第一周减掉） + 周几 - 1 （没有周0，等于把周一减掉）
+    delta_time = 7 * (obj['StartWeek'] - 1) + obj['Weekday'] - 1
+    if obj['WeekStatus'] == 1:  # 单周
+        if obj["StartWeek"] % 2 == 0:  # 若单周就不变，双周加7
+            delta_time += 7
+    elif obj['WeekStatus'] == 2:  # 双周
+        if obj["StartWeek"] % 2 != 0:  # 若双周就不变，单周加7
+            delta_time += 7
+    first_time_obj = initial_time + timedelta(days=delta_time)  # 处理完单双周之后 first_time_obj 就是真正开始的日期
+    if obj["WeekStatus"] == 0:  # 处理隔周课程
+        extra_status = "1"
+    else:
+        extra_status = f'2;BYDAY={weekdays[obj["Weekday"] - 1]}'
 
-def setClassTime():
-	data = []
-	with open('conf_classTime.json', 'r') as f:
-		data = json.load(f)
-	global classTimeList
-	classTimeList = data["classTime"]
-	print("setclassTime")
-	
-def setClassInfo():
-	data = []
-	with open('conf_classInfo.json', 'r') as f:
-		data = json.load(f)
-	global classInfoList
-	classInfoList = data["classInfo"]
-	print("setClassInfo:")
+    try:
+        obj["ClassSerial"] = str(int(obj["ClassSerial"]))
+    except ValueError:
+        obj["ClassSerial"] = str(obj["ClassSerial"])
 
-def setFirstWeekDate(firstWeekDate):
-	global DONE_firstWeekDate
-	DONE_firstWeekDate = time.strptime(firstWeekDate,'%Y%m%d')
-	print("setFirstWeekDate:",DONE_firstWeekDate)
+    # 计算课程第一次开始、结束的时间，后面使用RRule重复即可 // 格式类似 20200225T120000
+    final_stime_str = first_time_obj.strftime("%Y%m%d") + "T" + class_timetable[str(int(obj['ClassTimeId']))]["startTime"]
+    final_etime_str = first_time_obj.strftime("%Y%m%d") + "T" + class_timetable[str(int(obj['ClassTimeId']))]["endTime"]
+    delta_week = 7 * int(obj["EndWeek"] - obj["StartWeek"])
+    stop_time_obj = first_time_obj + timedelta(days=delta_week + 1)
+    stop_time_str = stop_time_obj.strftime("%Y%m%dT%H%M%SZ")  # 注意是utc时间，直接+1天处理
 
-def setReminder(reminder):
-	global DONE_reminder
-	reminderList = ["-PT10M","-PT30M","-PT1H","-PT2H","-P1D"]
-	if(reminder == "1"):
-		DONE_reminder = reminderList[0]
-	elif(reminder == "2"):
-		DONE_reminder = reminderList[1]
-	elif(reminder == "3"):
-		DONE_reminder = reminderList[2]
-	elif(reminder == "4"):
-		DONE_reminder = reminderList[3]
-	elif(reminder == "5"):
-		DONE_reminder = reminderList[4]
-	else:
-		DONE_reminder = "NULL"
+    # finally 生成此次循环的 event
+    _alarm_base = f'''BEGIN:VALARM
+X-WR-ALARMUID:{uid()}\nUID:{uid()}\nTRIGGER:{a_trigger}\nDESCRIPTION:事件提醒\nACTION:DISPLAY
+END:VALARM'''
 
+    _ical_base = f'''\nBEGIN:VEVENT
+CREATED:{utc_now}\nDTSTAMP:{utc_now}\nSUMMARY:{obj["ClassName"]}
+DESCRIPTION:教师：{obj["Teacher"]}\\n课程序号：{str(obj["ClassSerial"])}\nLOCATION:{obj["Classroom"]}
+TZID:Asia/Shanghai\nSEQUENCE:0\nUID:{uid()}\nRRULE:FREQ=WEEKLY;UNTIL={stop_time_str};INTERVAL={extra_status}
+DTSTART;TZID=Asia/Shanghai:{final_stime_str}\nDTEND;TZID=Asia/Shanghai:{final_etime_str}
+X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}
+END:VEVENT\n'''
 
-	print("setReminder",reminder)
+    # 写入文件
+    with open(f"res-{str(f_random)}.ics", "a", encoding='UTF-8') as f:
+        f.write(_ical_base)
+        print(f"第{i}条课程信息写入成功！")
+        i += 1
+        f.close()
 
-def checkReminder(reminder):
-	# TODO
+# finally 拼合头尾
+with open(f"res-{str(f_random)}.ics", "a", encoding='UTF-8') as f:
+    f.write(ical_end_base)
+    print(f"尾部信息写入成功！")
+    f.close()
 
-	print("checkReminder:",reminder)
-	List = ["0","1","2","3","4","5"]
-	for num in List:
-		if (reminder == num):
-			return YES
-	return NO
+# todo:写入utf-8？
+final_inform = f'''
+最终文件 res-{str(f_random)}.ics 已生成，可通过内网传输到 iOS Device 上使用。
+方法：
+\t1. 在放置 ics 的目录下打开终端。
+\t2. 输入 python -m http.server 8000 或 python3 -m http.server 8000 搭建 HTTP 服务器
+\t3. 在 iOS Device 的 Safari 浏览器中输入：
+\t\t\t\t\t\t http://{get_host_ip()}:8000/
+\t4. 点击 res-{str(f_random)}.ics，选择导入日历即可。'''
 
-def checkFirstWeekDate(firstWeekDate):
-	# 长度判断
-	if(len(firstWeekDate) != 8):
-		return NO;
-	
-	year = firstWeekDate[0:4]
-	month = firstWeekDate[4:6]
-	date = firstWeekDate[6:8]
-	dateList = [31,29,31,30,31,30,31,31,30,31,30,31]
-
-	# 年份判断
-	if(int(year) < 1970):
-		return NO
-	# 月份判断
-	if(int(month) == 0 or int(month) > 12):
-		return NO;
-	# 日期判断
-	if(int(date) > dateList[int(month)-1]):
-		return NO;
-
-	print("checkFirstWeekDate:",firstWeekDate)
-	return YES
-
-def basicSetting():
-	info = "欢迎使用课程表生成工具。\n接下来你需要设置一些基础的信息方便生成数据\n"
-	print (info)
-	
-	info = "请设置第一周的星期一日期(如：20160905):\n"
-	firstWeekDate = raw_input(info)
-	checkInput(checkFirstWeekDate, firstWeekDate)
-	
-	info = "正在配置上课时间信息……\n"
-	print(info)
-	try :
-		setClassTime()
-		print("配置上课时间信息完成。\n")
-	except :
-		sys_exit()
-
-	info = "正在配置课堂信息……\n"
-	print(info)
-	try :
-		setClassInfo()
-		print("配置课堂信息完成。\n")
-	except :
-		sys_exit()
-
-	info = "正在配置提醒功能，请输入数字选择提醒时间\n【0】不提醒\n【1】上课前 10 分钟提醒\n【2】上课前 30 分钟提醒\n【3】上课前 1 小时提醒\n【4】上课前 2 小时提醒\n【5】上课前 1 天提醒\n"
-	reminder = raw_input(info)
-	checkInput(checkReminder, reminder)
-def checkInput(checkType, input):
-	if(checkType == checkFirstWeekDate):
-		if (checkFirstWeekDate(input)):
-			info = "输入有误，请重新输入第一周的星期一日期(如：20160905):\n"
-			firstWeekDate = raw_input(info)
-			checkInput(checkFirstWeekDate, firstWeekDate)
-		else:
-			setFirstWeekDate(input)
-	elif(checkType == checkReminder):
-		if(checkReminder(input)):
-			info = "输入有误，请重新输入\n【1】上课前 10 分钟提醒\n【2】上课前 30 分钟提醒\n【3】上课前 1 小时提醒\n【4】上课前 2 小时提醒\n【5】上课前 1 天提醒\n"
-			reminder = raw_input(info)
-			checkInput(checkReminder, reminder)
-		else:
-			setReminder(input)
-
-	else:
-		print("程序出错了……")
-		end
-
-def random_str(randomlength):
-    str = ''
-    chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789'
-    length = len(chars) - 1
-    random = Random()
-    for i in range(randomlength):
-        str+=chars[random.randint(0, length)]
-    return str
-def sys_exit():
-	print("配置文件错误，请检查。\n")
-	sys.exit()
-reload(sys);
-sys.setdefaultencoding('utf-8');
-main()
+print(final_inform)

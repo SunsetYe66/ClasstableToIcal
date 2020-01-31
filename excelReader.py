@@ -16,11 +16,6 @@ from random import randint
 
 class ExcelReader:
     def __init__(self):
-        # 读取时间表
-        with open("conf_classTime.json", 'r', encoding='UTF-8') as f:
-            self.class_timetable = json.loads(f.read())["classTime"]
-            f.close()
-
         # 指定信息在 xls 表格内的列数
         self.config = dict()
         self.config["ClassName"] = 0
@@ -83,7 +78,7 @@ class ExcelReader:
 
             if self.config["isClassSerialEnabled"][0]:
                 self.classList[_i].setdefault("ClassSerial",
-                                              self.table.cell(i, self.config["isClassSerialEnabled"][1]).value)
+                                              str(self.table.cell(i, self.config["isClassSerialEnabled"][1]).value))
 
             if self.config["isClassTeacherEnabled"][0]:
                 self.classList[_i].setdefault("Teacher",
@@ -111,4 +106,7 @@ class ExcelReader:
 
 if __name__ == "__main__":
     p = ExcelReader()
-    p.main()
+    # p.main()
+    p.load_data()
+    p.write_data_test()
+    print(p.classList)
