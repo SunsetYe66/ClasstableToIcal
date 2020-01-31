@@ -2,7 +2,6 @@
 # Author: SunsetYe inherited from ChanJH
 # Website: ChanJH <chanjh.com>, SunsetYe <github.com/sunsetye66>
 # Contact: SunsetYe <sunsetye@me.com>
-# todo:直接使用dict完成
 # class info: classInfo: "" 时间的json
 # design: class[0] = {className:"", startWeek:"", endWeek:"", weekStatus:,
 # weekday:"", classTimeId:, classroom:"", teacher:""}
@@ -27,8 +26,6 @@ class ExcelReader:
         self.config["WeekStatus"] = 6
         self.config["isClassSerialEnabled"] = [1, 7]
         self.config["isClassTeacherEnabled"] = [1, 8]
-        # 信息列表 design: class[0] = {className:"", startWeek:"", endWeek:"", weekStatus:,
-        # weekday:"", classTimeId:, classroom:"", teacher:""}
         # weekStatus: 0=Disabled 1=odd weeks 单周 2=even weeks 双周
         # 读取 excel 文件
         self.data = xlrd.open_workbook('classInfo.xlsx')
@@ -75,15 +72,12 @@ class ExcelReader:
             self.classList[_i].setdefault("Weekday", self.table.cell(i, self.config["Weekday"]).value)
             self.classList[_i].setdefault("ClassTimeId", self.table.cell(i, self.config["ClassTime"]).value)
             self.classList[_i].setdefault("Classroom", self.table.cell(i, self.config["Classroom"]).value)
-
             if self.config["isClassSerialEnabled"][0]:
                 self.classList[_i].setdefault("ClassSerial",
                                               str(self.table.cell(i, self.config["isClassSerialEnabled"][1]).value))
-
             if self.config["isClassTeacherEnabled"][0]:
                 self.classList[_i].setdefault("Teacher",
                                               self.table.cell(i, self.config["isClassTeacherEnabled"][1]).value)
-
             i += 1
 
     def write_data_test(self):
@@ -92,7 +86,7 @@ class ExcelReader:
             filename = "conf_classInfo_" + str(randint(100, 999)) + ".json"
         else:
             filename = "conf_classInfo.json"
-        with open(filename, 'w') as json_file:
+        with open(filename, 'w', encoding='UTF-8') as json_file:
             json_str = json.dumps(self.classList, ensure_ascii=False, indent=4)
             json_file.write(json_str)
             json_file.close()
