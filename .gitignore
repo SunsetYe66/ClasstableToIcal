@@ -127,3 +127,6 @@ dmypy.json
 # ignore temporary files
 conf_classInfo*.json
 *.ics
+test*.py
+.idea/
+~$*.xls*
