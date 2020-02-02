@@ -38,26 +38,24 @@ try:
 except:
     print("课程配置文件 conf_classInfo.json 似乎有点问题")
     sys.exit()
-# todo:将classinfo改为utf-8
-# 定义参数，不需要每次循环都重新定义的
-first_week = "20200224"
-inform_time = 25
+
+# 定义全局参数
+first_week = "20200224"  # 第一周周一的日期
+inform_time = 25  # 提前 N 分钟提醒
+g_name = f'{datetime.now().strftime("%Y.%m")} 课程表@{socket.gethostname()}'  # 全局课程表名
+g_color = "#ff9500"  # 预览时的颜色（可以在 iOS 设备上修改）
+# 以下请勿修改
 utc_now = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 f_random = randint(100, 999)
 weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
-# ical base 参数
-g_name = f'{datetime.now().strftime("%Y.%m")} 课程表@{socket.gethostname()}'  # 全局课程表名
-g_color = "#ff9500"  # 颜色（可以在 iOS 设备上修改）
-a_trigger = f"-PT{inform_time}M"  # 提醒时间
-# 全局使用的 base
+a_trigger = f"-PT{inform_time}M"
+
+# 开始操作，先写入头
 ical_begin_base = f'''BEGIN:VCALENDAR
 VERSION:2.0
 X-WR-CALNAME:{g_name}
 X-APPLE-CALENDAR-COLOR:{g_color}
 '''
-ical_end_base = "\nEND:VCALENDAR"
-
-# 开始操作，先写入头
 try:
     with open(f"res-{str(f_random)}.ics", "w", encoding='UTF-8') as f:  # 追加要a
         f.write(ical_begin_base)
@@ -68,10 +66,10 @@ except:
 else:
     print("文件头写入成功！")
 
-initial_time = datetime.strptime(first_week, "%Y%m%d")
+initial_time = datetime.strptime(first_week, "%Y%m%d")  # 将开始时间转换为时间对象
 i = 1
 for obj in class_info:
-    # 计算课程第一次开始的日期 first_time_obj，公式：7*(开始周数-2) （//把第一周减掉） + 周几 - 1 （没有周0，等于把周一减掉）
+    # 计算课程第一次开始的日期 first_time_obj，公式：7*(开始周数-1) （//把第一周减掉） + 周几 - 1 （没有周0，等于把周一减掉）
     delta_time = 7 * (obj['StartWeek'] - 1) + obj['Weekday'] - 1
     if obj['WeekStatus'] == 1:  # 单周
         if obj["StartWeek"] % 2 == 0:  # 若单周就不变，双周加7
@@ -83,34 +81,33 @@ for obj in class_info:
     if obj["WeekStatus"] == 0:  # 处理隔周课程
         extra_status = "1"
     else:
-        extra_status = f'2;BYDAY={weekdays[int(obj["Weekday"] - 1)]}'
+        extra_status = f'2;BYDAY={weekdays[int(obj["Weekday"] - 1)]}'  # BYDAY 是周 N，隔周重复需要带上
 
-    try:
+    try:  # 尝试处理纯数字的课程序号
         obj["ClassSerial"] = str(int(obj["ClassSerial"]))
         serial = f'课程序号：{obj["ClassSerial"]}'
     except ValueError:
         obj["ClassSerial"] = str(obj["ClassSerial"])
         serial = f'课程序号：{obj["ClassSerial"]}'
-    except KeyError:
+    except KeyError:  # 如果没有这个 key，直接略过
         serial = ""
 
-    # 计算课程第一次开始、结束的时间，后面使用RRule重复即可 // 格式类似 20200225T120000
+    # 计算课程第一次开始、结束的时间，后面使用RRule重复即可，格式类似 20200225T120000
     final_stime_str = first_time_obj.strftime("%Y%m%d") + "T" + class_timetable[str(int(obj['ClassTimeId']))]["startTime"]
     final_etime_str = first_time_obj.strftime("%Y%m%d") + "T" + class_timetable[str(int(obj['ClassTimeId']))]["endTime"]
     delta_week = 7 * int(obj["EndWeek"] - obj["StartWeek"])
     stop_time_obj = first_time_obj + timedelta(days=delta_week + 1)
     stop_time_str = stop_time_obj.strftime("%Y%m%dT%H%M%SZ")  # 注意是utc时间，直接+1天处理
-    # 教师和课程序号可选，在此做判断
+    # 教师可选，在此做判断
     try:
         teacher = f'教师：{obj["Teacher"]}\t'
     except KeyError:
         teacher = ""
 
-    # finally 生成此次循环的 event
+    # 生成此次循环的 event_base
     _alarm_base = f'''BEGIN:VALARM
 X-WR-ALARMUID:{uid()}\nUID:{uid()}\nTRIGGER:{a_trigger}\nDESCRIPTION:事件提醒\nACTION:DISPLAY
 END:VALARM'''
-
     _ical_base = f'''\nBEGIN:VEVENT
 CREATED:{utc_now}\nDTSTAMP:{utc_now}\nSUMMARY:{obj["ClassName"]}
 DESCRIPTION:{teacher}{serial}\nLOCATION:{obj["Classroom"]}
@@ -126,9 +123,9 @@ END:VEVENT\n'''
         i += 1
         f.close()
 
-# finally 拼合头尾
+# 拼合头尾
 with open(f"res-{str(f_random)}.ics", "a", encoding='UTF-8') as f:
-    f.write(ical_end_base)
+    f.write("\nEND:VCALENDAR")
     print(f"尾部信息写入成功！")
     f.close()
 
@@ -138,7 +135,7 @@ final_inform = f'''
 \t1. 在放置 ics 的目录下打开终端。
 \t2. 输入 python -m http.server 8000 或 python3 -m http.server 8000 搭建 HTTP 服务器
 \t3. 在 iOS Device 的 Safari 浏览器中输入：
-\t\t\t\t\t\t http://{get_host_ip()}:8000/
+\t\t\t\t\t\thttp://{get_host_ip()}:8000/
 \t4. 点击 res-{str(f_random)}.ics，选择导入日历即可。'''
 
 print(final_inform)
