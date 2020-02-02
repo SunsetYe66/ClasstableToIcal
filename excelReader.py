@@ -45,11 +45,11 @@ class ExcelReader:
         print("ClassTime: ", self.config["ClassTime"])
         print("Classroom: ", self.config["Classroom"])
         print("WeekStatus: ", self.config["WeekStatus"])
-        
+
         print("isClassSerialEnabled: ", self.config["isClassSerialEnabled"][0], end="\t")
         if self.config["isClassSerialEnabled"][0]:
             print("Serial: ", self.config["isClassSerialEnabled"][1])
-        
+
         print("isClassTeacherEnabled: ", self.config["isClassTeacherEnabled"][0], end="\t")
         if self.config["isClassTeacherEnabled"][0]:
             print("Teacher: ", self.config["isClassTeacherEnabled"][1])
@@ -73,8 +73,13 @@ class ExcelReader:
             self.classList[_i].setdefault("ClassTimeId", self.table.cell(i, self.config["ClassTime"]).value)
             self.classList[_i].setdefault("Classroom", self.table.cell(i, self.config["Classroom"]).value)
             if self.config["isClassSerialEnabled"][0]:
-                self.classList[_i].setdefault("ClassSerial",
-                                              str(self.table.cell(i, self.config["isClassSerialEnabled"][1]).value))
+                try:
+                    self.classList[_i].setdefault("ClassSerial",
+                                                  str(int(self.table.cell(
+                                                      i, self.config["isClassSerialEnabled"][1]).value)))
+                except ValueError:
+                    self.classList[_i].setdefault("ClassSerial",
+                                                  str(self.table.cell(i, self.config["isClassSerialEnabled"][1]).value))
             if self.config["isClassTeacherEnabled"][0]:
                 self.classList[_i].setdefault("Teacher",
                                               self.table.cell(i, self.config["isClassTeacherEnabled"][1]).value)
