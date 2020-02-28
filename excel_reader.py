@@ -15,7 +15,7 @@ from random import randint
 
 class ExcelReader:
     def __init__(self):
-        # 指定信息在 xls 表格内的列数
+        # 指定信息在 xls 表格内的列数，第一列是第 0 列。
         self.config = dict()
         self.config["ClassName"] = 0
         self.config["StartWeek"] = 1
@@ -38,6 +38,7 @@ class ExcelReader:
     def confirm_conf(self):
         # 与用户确定配置内容
         print("\n欢迎使用课程表生成工具·Excel 解析器。\n若自行修改过 Excel 表格结构，请检查。")
+        print("若要设定是否使用单双周、是否显示教师，请修改 excel_reader.py 中的 27, 28 行。")
         print("ClassName: ", self.config["ClassName"])
         print("StartWeek: ", self.config["StartWeek"])
         print("EndWeek: ", self.config["EndWeek"])
@@ -46,13 +47,13 @@ class ExcelReader:
         print("Classroom: ", self.config["Classroom"])
         print("WeekStatus: ", self.config["WeekStatus"])
 
-        print("isClassSerialEnabled: ", self.config["isClassSerialEnabled"][0], end="\t")
+        print("isClassSerialEnabled: ", self.config["isClassSerialEnabled"][0], end="")
         if self.config["isClassSerialEnabled"][0]:
-            print("Serial: ", self.config["isClassSerialEnabled"][1])
+            print(" ,", "Serial: ", self.config["isClassSerialEnabled"][1])
 
-        print("isClassTeacherEnabled: ", self.config["isClassTeacherEnabled"][0], end="\t")
+        print("isClassTeacherEnabled: ", self.config["isClassTeacherEnabled"][0], end="")
         if self.config["isClassTeacherEnabled"][0]:
-            print("Teacher: ", self.config["isClassTeacherEnabled"][1])
+            print(" ,", "Teacher: ", self.config["isClassTeacherEnabled"][1])
 
         option = input("回车继续，输入其他内容退出：")
         if option:
@@ -85,7 +86,7 @@ class ExcelReader:
                                               self.table.cell(i, self.config["isClassTeacherEnabled"][1]).value)
             i += 1
 
-    def write_data_test(self):
+    def write_data(self):
         if os.path.exists("conf_classInfo.json"):
             print("JSON File exists, use random filename.")
             filename = "conf_classInfo_" + str(randint(100, 999)) + ".json"
@@ -100,12 +101,10 @@ class ExcelReader:
         if self.confirm_conf():
             sys.exit()
         self.load_data()
-        self.write_data_test()
+        self.write_data()
 
 
 if __name__ == "__main__":
     p = ExcelReader()
-    # p.main()
-    p.load_data()
-    p.write_data_test()
+    p.main()
     print(p.classList)
