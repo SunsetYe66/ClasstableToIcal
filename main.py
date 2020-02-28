@@ -28,6 +28,7 @@ def gen_ical():
 def main():
     inform_text = '''欢迎使用课程表生成工具！
 使用前请参照 temp_classInfo.xlsx 内的格式、说明填写课程信息，并将其重命名为 classInfo.xlsx。
+要设置每节课的时间，请修改conf_classTime.json。
 输入 1 进入「周数指示器」生成程序；
 输入 2 进入「Excel 读取工具」；
 输入 3 进入「iCal 生成工具」；
