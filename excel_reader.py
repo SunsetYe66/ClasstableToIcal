@@ -88,7 +88,7 @@ class ExcelReader:
 
     def write_data(self):
         if os.path.exists("conf_classInfo.json"):
-            print("JSON File exists, use random filename.")
+            print("已存在 JSON 文件，使用随机文件名，请手动修改！")
             filename = "conf_classInfo_" + str(randint(100, 999)) + ".json"
         else:
             filename = "conf_classInfo.json"
@@ -102,6 +102,7 @@ class ExcelReader:
             sys.exit()
         self.load_data()
         self.write_data()
+        print("Excel 文件读取成功！")
 
 
 if __name__ == "__main__":
