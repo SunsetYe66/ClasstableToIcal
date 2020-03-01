@@ -25,16 +25,18 @@ def gen_ical():
     process.main_process()
 
 
-def main():
-    inform_text = '''欢迎使用课程表生成工具！
+def main(i):
+    inform_text1 = '''欢迎使用课程表生成工具！
 使用前请参照 temp_classInfo.xlsx 内的格式、说明填写课程信息，并将其重命名为 classInfo.xlsx。
 要设置每节课的时间，请修改conf_classTime.json。
-输入 1 进入「周数指示器」生成程序；
+Copyright © 2020 Sunset Ye, Distributed under GPL Licence.'''
+    if i == 1:
+        print(inform_text1)
+    inform_text2 = '''输入 1 进入「周数指示器」生成程序；
 输入 2 进入「Excel 读取工具」；
 输入 3 进入「iCal 生成工具」；
-输入 0 退出，祝您使用愉快 ~
-Copyright © 2020 Sunset Ye, Distributed under GPL Licence.'''
-    print(inform_text)
+输入 0 退出，祝您使用愉快 ~'''
+    print(inform_text2)
     func = input("请输入要进入的功能：")
     if func == "0":
         sys.exit()
@@ -45,10 +47,13 @@ Copyright © 2020 Sunset Ye, Distributed under GPL Licence.'''
     elif func == "3":
         gen_ical()
     else:
-        print("啥？")
+        print("？？？")
         sys.exit()
 
 
 if __name__ == '__main__':
-    main()
-    gen_week()
+    i = 1
+    while True:
+        main(i)
+        print("", end="\n")
+        i += 1
