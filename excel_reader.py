@@ -28,7 +28,11 @@ class ExcelReader:
         self.config["isClassTeacherEnabled"] = [1, 8]
         # weekStatus: 0=Disabled 1=odd weeks 单周 2=even weeks 双周
         # 读取 excel 文件
-        self.data = xlrd.open_workbook('classInfo.xlsx')
+        try:
+            self.data = xlrd.open_workbook('classInfo.xlsx')
+        except FileNotFoundError:
+            print("文件不存在，请确认是否将课程信息前的 temp_ 去掉！")
+            sys.exit()
         self.table = self.data.sheets()[0]
         # 基础信息
         self.numOfRow = self.table.nrows  # 获取行数,即课程数
