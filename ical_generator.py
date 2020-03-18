@@ -80,7 +80,12 @@ X-APPLE-CALENDAR-COLOR:{self.g_color}
         i = 1
         for obj in self.class_info:
             # 计算课程第一次开始的日期 first_time_obj，公式：7*(开始周数-1) （//把第一周减掉） + 周几 - 1 （没有周0，等于把周一减掉）
-            delta_time = 7 * (obj['StartWeek'] - 1) + obj['Weekday'] - 1
+            try:
+                delta_time = 7 * (obj['StartWeek'] - 1) + obj['Weekday'] - 1
+            except TypeError:
+                print("请检查 Excel 中是否有无用行，并删除 conf_classInfo.json 后重新运行 Excel 读取器及 iCal 生成器！")
+                sys.exit()
+
             if obj['WeekStatus'] == 1:  # 单周
                 if obj["StartWeek"] % 2 == 0:  # 若单周就不变，双周加7
                     delta_time += 7
