@@ -7,7 +7,6 @@ import json
 import sys
 from datetime import datetime, timedelta
 from uuid import uuid4 as uid
-from random import randint
 import socket
 
 
@@ -49,25 +48,53 @@ class GenerateCal:
 
     def set_attribute(self):
         self.first_week = input("请输入第一周周一的日期，格式为 YYYYMMDD，如 20200224：")  # 第一周周一的日期
-        self.inform_time = input("请输入提前提醒时间，以分钟计；若不需要提醒请输入 N：")  # 提前 N 分钟提醒
-        if self.inform_time.isdigit():
-            self.a_trigger = f"-PT{self.inform_time}M"
-        elif self.inform_time == "N" or self.inform_time == "n":
-            self.a_trigger = ""
+        c = 0
+        while c == 0:
+            self.inform_time = input("请输入提前提醒时间，以分钟计；若不需要提醒请输入 N：")
+            try:
+                self.inform_time = int(self.inform_time)  # 提前 N 分钟提醒
+                if self.inform_time <= 60:
+                    self.a_trigger = f'-P0DT0H{self.inform_time}M0S'
+                elif 60 < self.inform_time <= 1440:
+                    minutes = self.inform_time % 60
+                    hours = self.inform_time // 60
+                    self.a_trigger = f'-P0DT{hours}H{minutes}M0S'
+                else:
+                    minutes = self.inform_time % 60
+                    hours = (self.inform_time // 60) - 24
+                    days = self.inform_time // 1440
+                    self.a_trigger = f'-P{days}DT{hours}H{minutes}M0S'
+                c = 1
+            except ValueError:
+                if self.inform_time in "nN":
+                    self.a_trigger = ""
+                    c = 1
+                else:
+                    print("输入数字有误！")
 
     def main_process(self):
         utc_now = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
-        f_random = randint(100, 999)
 
         # 开始操作，先写入头
         ical_begin_base = f'''BEGIN:VCALENDAR
 VERSION:2.0
 X-WR-CALNAME:{self.g_name}
 X-APPLE-CALENDAR-COLOR:{self.g_color}
+X-WR-TIMEZONE:Asia/Shanghai
+BEGIN:VTIMEZONE
+TZID:Asia/Shanghai
+X-LIC-LOCATION:Asia/Shanghai
+BEGIN:STANDARD
+TZOFFSETFROM:+0800
+TZOFFSETTO:+0800
+TZNAME:CST
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE
 '''
         try:
-            with open(f"res-{str(f_random)}.ics", "w", encoding='UTF-8') as f:  # 追加要a
+            with open(f"res-{str(utc_now)}.ics", "w", encoding='UTF-8') as f:  # 追加要a
                 f.write(ical_begin_base)
                 f.close()
         except:
@@ -123,8 +150,8 @@ X-APPLE-CALENDAR-COLOR:{self.g_color}
 
             # 生成此次循环的 event_base
             if self.a_trigger:
-                _alarm_base = f'''BEGIN:VALARM
-X-WR-ALARMUID:{uid()}\nUID:{uid()}\nTRIGGER:{self.a_trigger}\nDESCRIPTION:事件提醒\nACTION:DISPLAY\nEND:VALARM\n'''
+                _alarm_base = f'''BEGIN:VALARM\nACTION:DISPLAY\nDESCRIPTION:This is an event reminder
+TRIGGER:{self.a_trigger}\nX-WR-ALARMUID:{uid()}\nUID:{uid()}\nEND:VALARM\n'''
             else:
                 _alarm_base = ""
             _ical_base = f'''\nBEGIN:VEVENT
@@ -135,26 +162,26 @@ DTSTART;TZID=Asia/Shanghai:{final_stime_str}\nDTEND;TZID=Asia/Shanghai:{final_et
 X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}END:VEVENT\n'''
 
             # 写入文件
-            with open(f"res-{str(f_random)}.ics", "a", encoding='UTF-8') as f:
+            with open(f"res-{str(utc_now)}.ics", "a", encoding='UTF-8') as f:
                 f.write(_ical_base)
                 print(f"第{i}条课程信息写入成功！")
                 i += 1
                 f.close()
 
         # 拼合头尾
-        with open(f"res-{str(f_random)}.ics", "a", encoding='UTF-8') as f:
+        with open(f"res-{str(utc_now)}.ics", "a", encoding='UTF-8') as f:
             f.write("\nEND:VCALENDAR")
             print(f"尾部信息写入成功！")
             f.close()
 
         final_inform = f'''
-        最终文件 res-{str(f_random)}.ics 已生成，可通过内网传输到 iOS Device 上使用。
+        最终文件 res-{str(utc_now)}.ics 已生成，可通过内网传输到 iOS Device 上使用。
         方法：
         \t1. 在放置 ics 的目录下打开终端。
         \t2. 输入 python -m http.server 8000 或 python3 -m http.server 8000 搭建 HTTP 服务器
         \t3. 在 iOS Device 的 Safari 浏览器中输入：
         \t\t\t\t\t\thttp://{self.get_host_ip()}:8000/
-        \t4. 点击 res-{str(f_random)}.ics，选择导入日历即可。'''
+        \t4. 点击 res-{str(utc_now)}.ics，选择导入日历即可。'''
 
         print(final_inform)
 
