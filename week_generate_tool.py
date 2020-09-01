@@ -1,7 +1,7 @@
 # coding: utf-8
 # Author: SunsetYe
 # Website: github.com/sunsetye66
-# Contact: sunsetye@me.com
+# Contact: me # sunsetye.com
 # Generate the Ordinal of Weeks 生成周数
 
 import sys

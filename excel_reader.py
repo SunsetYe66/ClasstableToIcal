@@ -1,7 +1,7 @@
 # coding: utf-8
 # Author: SunsetYe inherited from ChanJH
 # Website: ChanJH <chanjh.com>, SunsetYe <github.com/sunsetye66>
-# Contact: SunsetYe <sunsetye@me.com>
+# Contact: SunsetYe <me # sunsetye.com>
 # class info: classInfo: "" 时间的json
 # design: class[0] = {className:"", startWeek:"", endWeek:"", weekStatus:,
 # weekday:"", classTimeId:, classroom:"", teacher:""}

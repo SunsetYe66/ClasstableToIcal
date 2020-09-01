@@ -1,7 +1,7 @@
 # coding: utf-8
 # Author: SunsetYe
 # Website: SunsetYe <github.com/sunsetye66>
-# Contact: SunsetYe <sunsetye@me.com>
+# Contact: SunsetYe <me # sunsetye.com>
 import sys
 
 
