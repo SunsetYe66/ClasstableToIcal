@@ -5,6 +5,8 @@ Convert Classtable to iCal using Pything and Excel as data source.
 
 ## Usage
 
+以下为简略说明，更详细教程请参看[少数派](https://sspai.com/post/59694)。
+
 先安装依赖：
 
 ```shell
@@ -53,4 +55,4 @@ python3 main.py
 
 ## License
 
-GPLv3
+LGPLv3
