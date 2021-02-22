@@ -29,7 +29,7 @@ class ExcelReader:
         # weekStatus: 0=Disabled 1=odd weeks 单周 2=even weeks 双周
         # 读取 excel 文件
         try:
-            self.data = xlrd.open_workbook('classInfo.xlsx')
+            self.data = xlrd.open_workbook('classInfo.xls')
         except FileNotFoundError:
             print("文件不存在，请确认是否将课程信息前的 temp_ 去掉！")
             sys.exit()
