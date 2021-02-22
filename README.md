@@ -3,7 +3,7 @@ Convert Classtable to iCal using Pything and Excel as data source.
 
 该工具可以方便地将课程表转换为 `.ics` 格式以导入各种设备的「日程」中。
 
-> :warning: **注意**: 该项目不会再有进一步的功能开发。
+> :warning: **注意**: 由于作者学校不再使用自建教务系统，该项目短期内不会再有进一步的功能开发。
 
 ## Usage
 
