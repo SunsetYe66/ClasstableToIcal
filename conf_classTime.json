@@ -1,32 +1,72 @@
 {
     "1": {
-        "name": "第 1、2 节",
-        "startTime": "082000",
-        "endTime": "095500"
+        "name": "第 1 节",
+        "startTime": "080000",
+        "endTime": "084500"
     },
     "2": {
-        "name": "第 3、4 节",
-        "startTime": "101500",
-        "endTime": "115000"
+        "name": "第 2 节",
+        "startTime": "085500",
+        "endTime": "094000"
     },
     "3": {
-        "name": "第 5、6 节",
-        "startTime": "130000",
-        "endTime": "143500"
+        "name": "第 3 节",
+        "startTime": "095500",
+        "endTime": "104000"
     },
     "4": {
-        "name": "第 7、8 节",
-        "startTime": "145500",
-        "endTime": "163000"
+        "name": "第 4 节",
+        "startTime": "105000",
+        "endTime": "113500"
     },
     "5": {
-        "name": "第 9、10 节",
-        "startTime": "180000",
-        "endTime": "193500"
+        "name": "第 5 节",
+        "startTime": "114500",
+        "endTime": "123000"
     },
     "6": {
-        "name": "第 9、10、11 节",
-        "startTime": "180000",
-        "endTime": "202500"
+        "name": "第 6 节",
+        "startTime": "133000",
+        "endTime": "141500"
+    },
+    "7": {
+        "name": "第 7 节",
+        "startTime": "142500",
+        "endTime": "151000"
+    },
+    "8": {
+        "name": "第 8 节",
+        "startTime": "152000",
+        "endTime": "160500"
+    },
+    "9": {
+        "name": "第 9 节",
+        "startTime": "161500",
+        "endTime": "170000"
+    },
+    "10": {
+        "name": "第 10 节",
+        "startTime": "171000",
+        "endTime": "175500"
+    },
+    "11": {
+        "name": "第 11 节",
+        "startTime": "183000",
+        "endTime": "191500"
+    },
+    "12": {
+        "name": "第 12 节",
+        "startTime": "192500",
+        "endTime": "201000"
+    },
+    "13": {
+        "name": "第 13 节",
+        "startTime": "202000",
+        "endTime": "210500"
+    },
+    "14": {
+        "name": "第 14 节",
+        "startTime": "21150",
+        "endTime": "220000"
     }
 }
