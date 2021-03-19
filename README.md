@@ -3,7 +3,7 @@ Convert Classtable to iCal using Pything and Excel as data source.
 
 该工具可以方便地将课程表转换为 `.ics` 格式以导入各种设备的「日程」中。
 
-> :warning: **注意**: 由于作者学校不再使用自建教务系统，该项目短期内不会再有进一步的功能开发。
+> :warning: **注意**: 由于作者学校不再使用自建教务系统，该项目短期内不会再有进一步的功能开发。欢迎提交 PR 更新功能。
 
 ## Usage
 
@@ -39,13 +39,13 @@ python3 main.py
 
 ```json
 "1": {
-    "name": "第 1、2 节", 
+    "name": "第 1 节", 
     "startTime": "082000",
     "endTime": "095500"
 }
 ```
 
-该文件为 JSON 格式，一开始的数字是**时段编号**，对应 `temp_classinfo.xlsx` 里的 `classTime` 字段；`startTime` 与 `endTime` 采用 `%H%M%S` 格式，即时、分、秒去掉分隔符。
+该文件为 JSON 格式，一开始的数字是**时段编号**，对应 `temp_classinfo.xls` 里的 `classTime` 字段；`startTime` 与 `endTime` 采用 `%H%M%S` 格式，即时、分、秒去掉分隔符。
 
 ## Feature
 
@@ -54,6 +54,7 @@ python3 main.py
 - 单双周排课
 - 课前n分钟提醒（待进一步测试）
 - 不同教室（添加多个条目）
+- 跨时段上课（[Contributed by @BoisV](https://github.com/SunsetYe66/ClasstableToIcal/pull/4)），现在定义上课时间段的方式改为开始时间id + 结束时间id，可以应对更复杂的时间需求
 
 ## License
 
