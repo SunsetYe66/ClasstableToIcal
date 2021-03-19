@@ -136,9 +136,9 @@ END:VTIMEZONE
 
             # 计算课程第一次开始、结束的时间，后面使用RRule重复即可，格式类似 20200225T120000
             final_stime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
-                              self.class_timetable[str(int(obj['ClassTimeId']))]["startTime"]
+                              self.class_timetable[str(int(obj['ClassStartTimeId']))]["startTime"]
             final_etime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
-                              self.class_timetable[str(int(obj['ClassTimeId']))]["endTime"]
+                              self.class_timetable[str(int(obj['ClassEndTimeId']))]["endTime"]
             delta_week = 7 * int(obj["EndWeek"] - obj["StartWeek"])
             stop_time_obj = first_time_obj + timedelta(days=delta_week + 1)
             stop_time_str = stop_time_obj.strftime("%Y%m%dT%H%M%SZ")  # 注意是utc时间，直接+1天处理
