@@ -21,11 +21,12 @@ class ExcelReader:
         self.config["StartWeek"] = 1
         self.config["EndWeek"] = 2
         self.config["Weekday"] = 3
-        self.config["ClassTime"] = 4
-        self.config["Classroom"] = 5
-        self.config["WeekStatus"] = 6
-        self.config["isClassSerialEnabled"] = [1, 7]
-        self.config["isClassTeacherEnabled"] = [1, 8]
+        self.config["ClassStartTime"] = 4
+        self.config["ClassEndTime"] = 5
+        self.config["Classroom"] = 6
+        self.config["WeekStatus"] = 7
+        self.config["isClassSerialEnabled"] = [1, 8]
+        self.config["isClassTeacherEnabled"] = [1, 9]
         # weekStatus: 0=Disabled 1=odd weeks 单周 2=even weeks 双周
         # 读取 excel 文件
         try:
@@ -47,7 +48,8 @@ class ExcelReader:
         print("StartWeek: ", self.config["StartWeek"])
         print("EndWeek: ", self.config["EndWeek"])
         print("Weekday: ", self.config["Weekday"])
-        print("ClassTime: ", self.config["ClassTime"])
+        print("ClassStartTime: ", self.config["ClassStartTime"])
+        print("ClassEndTime: ", self.config["ClassEndTime"])
         print("Classroom: ", self.config["Classroom"])
         print("WeekStatus: ", self.config["WeekStatus"])
 
@@ -75,7 +77,8 @@ class ExcelReader:
             self.classList[_i].setdefault("EndWeek", self.table.cell(i, self.config["EndWeek"]).value)
             self.classList[_i].setdefault("WeekStatus", self.table.cell(i, self.config["WeekStatus"]).value)
             self.classList[_i].setdefault("Weekday", self.table.cell(i, self.config["Weekday"]).value)
-            self.classList[_i].setdefault("ClassTimeId", self.table.cell(i, self.config["ClassTime"]).value)
+            self.classList[_i].setdefault("ClassStartTimeId", self.table.cell(i, self.config["ClassStartTime"]).value)
+            self.classList[_i].setdefault("ClassEndTimeId", self.table.cell(i, self.config["ClassEndTime"]).value)
             self.classList[_i].setdefault("Classroom", self.table.cell(i, self.config["Classroom"]).value)
             if self.config["isClassSerialEnabled"][0]:
                 try:
