@@ -131,3 +131,4 @@ test*.py
 .idea/
 ~$*.xls*
 classInfo.xlsx
+.DS_Store
