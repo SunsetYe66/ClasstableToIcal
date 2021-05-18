@@ -12,7 +12,9 @@ Convert Classtable to iCal using Pything and Excel as data source.
 先安装依赖：
 
 ```shell
-pip install uuid xlrd 
+pip install requirements.txt
+# or
+pip install uuid xlrd
 ```
 
 然后执行 `main.py`：
@@ -23,7 +25,28 @@ python main.py
 python3 main.py
 ```
 
-测试环境为：Python 3.7.2，Windows 10 x64.
+测试环境为：Python 3.7.2 | 3.8.10 | 3.9.5，Windows 10 x64 | Mac OS Big Sur 11.3.1 .
+
+## 文件结构
+
+```
+.
+├── .gitattributes
+├── .gitignore
+├── LICENSE
+├── README.md
+└── res
+    ├── data
+    │   ├── conf_classTime.json
+    │   ├── conf_classTime_summer.json
+    │   ├── conf_classTime_winter.json
+    │   └── temp_classInfo.xls
+    ├── excel_reader.py
+    ├── ical_generator.py
+    ├── main.py
+    ├── requirements.txt
+    └── week_generate_tool.py
+```
 
 ## 文件中格式解释
 
@@ -37,15 +60,21 @@ python3 main.py
 
 ### conf_classTime.json
 
+当 dulEnable 为 0 时使用该 json
+
 ```json
 "1": {
-    "name": "第 1 节", 
+    "name": "第 1 节",
     "startTime": "082000",
     "endTime": "095500"
 }
 ```
 
 该文件为 JSON 格式，一开始的数字是**时段编号**，对应 `temp_classinfo.xls` 里的 `classTime` 字段；`startTime` 与 `endTime` 采用 `%H%M%S` 格式，即时、分、秒去掉分隔符。
+
+### conf_classTime_summer.json | conf_classTime_winter.json
+
+格式同上，当 dulEnable 为 1 时启用该 json
 
 ## Feature
 
@@ -55,6 +84,7 @@ python3 main.py
 - 课前n分钟提醒（待进一步测试）
 - 不同教室（添加多个条目）
 - 跨时段上课（[Contributed by @BoisV](https://github.com/SunsetYe66/ClasstableToIcal/pull/4)），现在定义上课时间段的方式改为开始时间id + 结束时间id，可以应对更复杂的时间需求
+- 双作息表支持
 
 ## License
 

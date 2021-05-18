@@ -30,7 +30,7 @@ class ExcelReader:
         # weekStatus: 0=Disabled 1=odd weeks 单周 2=even weeks 双周
         # 读取 excel 文件
         try:
-            self.data = xlrd.open_workbook('../classInfo.xls')
+            self.data = xlrd.open_workbook('./data/classInfo.xls')
         except FileNotFoundError:
             print("文件不存在，请确认是否将课程信息前的 temp_ 去掉！")
             sys.exit()
@@ -94,11 +94,11 @@ class ExcelReader:
             i += 1
 
     def write_data(self):
-        if os.path.exists("conf_classInfo.json"):
+        if os.path.exists("./data/conf_classInfo.json"):
             print("已存在 JSON 文件，使用随机文件名，请手动修改！")
-            filename = "conf_classInfo_" + str(randint(100, 999)) + ".json"
+            filename = "./data/conf_classInfo_" + str(randint(100, 999)) + ".json"
         else:
-            filename = "conf_classInfo.json"
+            filename = "./data/conf_classInfo.json"
         with open(filename, 'w', encoding='UTF-8') as json_file:
             json_str = json.dumps(self.classList, ensure_ascii=False, indent=4)
             json_file.write(json_str)
