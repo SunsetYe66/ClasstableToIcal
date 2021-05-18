@@ -77,13 +77,29 @@ class GenerateCal:
         weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
 
         # 读取文件，返回 dict(class_timetable) 时间表
-        try:
-            with open("./data/conf_classTime.json", 'r', encoding='UTF-8') as f:
-                self.class_timetable = json.loads(f.read())
-                f.close()
-        except:
-            print("时间配置文件 conf_classTime.json 似乎有点问题")
-            sys.exit()
+        if self.dulEnable == 0:
+            try:
+                with open("./data/conf_classTime.json", 'r', encoding='UTF-8') as f:
+                    self.class_timetable = json.loads(f.read())
+                    f.close()
+            except Exception as e:
+                print(e.args)
+                print("时间配置文件 conf_classTime.json 似乎有点问题")
+                sys.exit()
+        else:
+            try:
+                with open("./data/conf_classTime_summer.json", 'r', encoding='UTF-8') as f:
+                    self.class_timetable_first = json.loads(f.read())
+                    f.close()
+                with open("./data/conf_classTime_winter.json", 'r', encoding='UTF-8') as f:
+                    self.class_timetable_second = json.loads(f.read())
+                    f.close()
+            except Exception as e:
+                print(e.args)
+                print("双作息时间配置文件似乎有点问题")
+                sys.exit()
+            if self.dulStart:
+                self.class_timetable_first, self.class_timetable_second = self.class_timetable_second, self.class_timetable_first
 
         # 开始操作，先写入头
         ical_begin_base = f'''BEGIN:VCALENDAR
@@ -119,23 +135,6 @@ END:VTIMEZONE
             # 启用双作息
             if self.dulEnable:
                 # 第一作息
-                if self.dulStart == 0:
-                    try:
-                        with open("./data/conf_classTime_summer.json", 'r', encoding='UTF-8') as f:
-                            self.class_timetable = json.loads(f.read())
-                            f.close()
-                    except:
-                        print("时间配置文件 conf_classTime_summer.json 似乎有点问题")
-                        sys.exit()
-                else:
-                    try:
-                        with open("./data/conf_classTime_winter.json", 'r', encoding='UTF-8') as f:
-                            self.class_timetable = json.loads(f.read())
-                            f.close()
-                    except:
-                        print("时间配置文件 conf_classTime_winter.json 似乎有点问题")
-                        sys.exit()
-
                 # 计算课程第一次开始的日期 first_time_obj，公式：7*(开始周数-1) （//把第一周减掉） + 周几 - 1 （没有周0，等于把周一减掉）
                 try:
                     delta_time = 7 * (obj['StartWeek'] - 1) + obj['Weekday'] - 1
@@ -157,33 +156,17 @@ END:VTIMEZONE
 
                 # 计算课程第一次开始、结束的时间，后面使用RRule重复即可，格式类似 20200225T120000
                 final_stime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
-                                  self.class_timetable[str(int(obj['ClassStartTimeId']))]["startTime"]
+                                  self.class_timetable_first[str(int(obj['ClassStartTimeId']))]["startTime"]
                 final_etime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
-                                  self.class_timetable[str(int(obj['ClassEndTimeId']))]["endTime"]
+                                  self.class_timetable_first[str(int(obj['ClassEndTimeId']))]["endTime"]
                 delta_week = 7 * int(self.dulWeek - obj["StartWeek"] - 1)
-                if (obj['WeekStatus'] == 1 and self.dulWeek % 2 == 1) or (obj['WeekStatus'] == 2 and self.dulWeek % 2 == 0):
-                    delta_week -= 7
+                if (obj['WeekStatus'] == 1 and self.dulWeek % 2 == 1) or (
+                        obj['WeekStatus'] == 2 and self.dulWeek % 2 == 0):
+                    delta_week -= 7  # 对作息转换当周的隔周课程做特殊处理
                 stop_time_obj = first_time_obj + timedelta(days=delta_week + 1)
                 stop_time_str = stop_time_obj.strftime("%Y%m%dT%H%M%SZ")  # 注意是utc时间，直接+1天处理
 
                 # 第二作息
-                if self.dulStart == 0:
-                    try:
-                        with open("./data/conf_classTime_winter.json", 'r', encoding='UTF-8') as f:
-                            self.class_timetable = json.loads(f.read())
-                            f.close()
-                    except:
-                        print("时间配置文件 conf_classTime_winter.json 似乎有点问题")
-                        sys.exit()
-                else:
-                    try:
-                        with open("./data/conf_classTime_summer.json", 'r', encoding='UTF-8') as f:
-                            self.class_timetable = json.loads(f.read())
-                            f.close()
-                    except:
-                        print("时间配置文件 conf_classTime_summer.json 似乎有点问题")
-                        sys.exit()
-
                 try:
                     _delta_time = 7 * (self.dulWeek - 1) + obj['Weekday'] - 1
                 except TypeError:
@@ -204,9 +187,9 @@ END:VTIMEZONE
                     extra_status = f'2;BYDAY={weekdays[int(obj["Weekday"] - 1)]}'  # BYDAY 是周 N，隔周重复需要带上
 
                 _final_stime_str = _first_time_obj.strftime("%Y%m%d") + "T" + \
-                                   self.class_timetable[str(int(obj['ClassStartTimeId']))]["startTime"]
+                                   self.class_timetable_second[str(int(obj['ClassStartTimeId']))]["startTime"]
                 _final_etime_str = _first_time_obj.strftime("%Y%m%d") + "T" + \
-                                   self.class_timetable[str(int(obj['ClassEndTimeId']))]["endTime"]
+                                   self.class_timetable_second[str(int(obj['ClassEndTimeId']))]["endTime"]
                 _delta_week = 7 * int(obj["EndWeek"] - self.dulWeek)
                 _stop_time_obj = _first_time_obj + timedelta(days=_delta_week + 1)
                 _stop_time_str = _stop_time_obj.strftime("%Y%m%dT%H%M%SZ")  # 注意是utc时间，直接+1天处理
@@ -273,15 +256,6 @@ X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}END:VEVENT\n'''
                 else:
                     extra_status = f'2;BYDAY={weekdays[int(obj["Weekday"] - 1)]}'  # BYDAY 是周 N，隔周重复需要带上
 
-                try:  # 尝试处理纯数字的课程序号
-                    obj["ClassSerial"] = str(int(obj["ClassSerial"]))
-                    serial = f'课程序号：{obj["ClassSerial"]}'
-                except ValueError:
-                    obj["ClassSerial"] = str(obj["ClassSerial"])
-                    serial = f'课程序号：{obj["ClassSerial"]}'
-                except KeyError:  # 如果没有这个 key，直接略过
-                    serial = ""
-
                 # 计算课程第一次开始、结束的时间，后面使用RRule重复即可，格式类似 20200225T120000
                 final_stime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
                                   self.class_timetable[str(int(obj['ClassStartTimeId']))]["startTime"]
@@ -290,11 +264,20 @@ X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}END:VEVENT\n'''
                 delta_week = 7 * int(obj["EndWeek"] - obj["StartWeek"])
                 stop_time_obj = first_time_obj + timedelta(days=delta_week + 1)
                 stop_time_str = stop_time_obj.strftime("%Y%m%dT%H%M%SZ")  # 注意是utc时间，直接+1天处理
+
                 # 教师可选，在此做判断
                 try:
                     teacher = f'教师：{obj["Teacher"]}\t'
                 except KeyError:
                     teacher = ""
+                try:  # 尝试处理纯数字的课程序号
+                    obj["ClassSerial"] = str(int(obj["ClassSerial"]))
+                    serial = f'课程序号：{obj["ClassSerial"]}'
+                except ValueError:
+                    obj["ClassSerial"] = str(obj["ClassSerial"])
+                    serial = f'课程序号：{obj["ClassSerial"]}'
+                except KeyError:  # 如果没有这个 key，直接略过
+                    serial = ""
 
                 # 生成此次循环的 event_base
                 if self.a_trigger:
