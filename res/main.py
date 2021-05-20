@@ -27,7 +27,7 @@ def gen_ical():
 
 def main(i):
     inform_text1 = '''欢迎使用课程表生成工具！
-使用前请参照 temp_classInfo.xls 内的格式、说明填写课程信息，并将其重命名为 classInfo.xls。
+使用前请参照 data/temp_classInfo.xls 内的格式、说明填写课程信息，并将其重命名为 classInfo.xls。
 要设置每节课的时间，请修改conf_classTime.json。
 Copyright © 2020 Sunset Ye, Distributed under GPL Licence.'''
     if i == 1:
