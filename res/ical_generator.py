@@ -13,14 +13,18 @@ import socket
 class GenerateCal:
     def __init__(self):
         # 定义全局参数
+        self.utc_now = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")  # 全局 UTC 时间
         self.first_week = "20200224"  # 第一周周一的日期
         self.inform_time = 25  # 提前 N 分钟提醒
         self.g_name = f'{datetime.now().strftime("%Y.%m")} 课程表@{socket.gethostname()}'  # 全局课程表名
         self.g_color = "#ff9500"  # 预览时的颜色（可以在 iOS 设备上修改）
         self.a_trigger = ""
-        self.dulEnable = 0
-        self.dulStart = 0
-        self.dulWeek = 0
+        self.file_name = f"res-{str(self.utc_now)}.ics"  # 文件名
+        self.week_generate = 0  # 是否写入周数指示器
+        self.total_weeks = 16  # 周数指示器总周数
+        self.dulEnable = 0  # 是否启用双作息
+        self.dulStart = 0  # 双作息初始作息
+        self.dulWeek = 0  # 第二作息初始周
 
         # 读取文件，返回 dict(class_info) 课程信息
         try:
@@ -40,6 +44,19 @@ class GenerateCal:
         finally:
             s.close()
         return ip
+
+    def gen_week(self):
+        from week_generate_tool import GenerateWeeks
+        process = GenerateWeeks()
+        process.out_set_attribute(self.first_week, self.total_weeks, self.file_name)
+        process.main_process()
+
+    def first_classtable(self):
+        first_month = int(int(self.first_week) % 10000 / 100)
+        if 5 <= first_month < 10:
+            self.dulStart = 0
+        else:
+            self.dulStart = 1
 
     def set_attribute(self):
         self.first_week = input("请输入第一周周一的日期，格式为 YYYYMMDD，如 20200224：")  # 第一周周一的日期
@@ -66,40 +83,41 @@ class GenerateCal:
                     c = 1
                 else:
                     print("输入数字有误！")
-
+        self.week_generate = int(input("是否写入周数指示器？是：1，否：0 (默认：否)："))
+        if self.week_generate:
+            self.total_weeks = int(input("请输入总周数 (默认：16)："))
         self.dulEnable = int(input("是否启用双作息时间？是：1，否：0 (默认：否)："))
         if self.dulEnable:
-            self.dulStart = int(input("请输入初始作息，夏季：0，冬季：1 (默认：夏季)："))
             self.dulWeek = float(input("请输入第二作息时间起始周："))
 
     def main_process(self):
-        utc_now = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
 
         # 读取文件，返回 dict(class_timetable) 时间表
         if self.dulEnable == 0:
             try:
                 with open("./data/conf_classTime.json", 'r', encoding='UTF-8') as f:
-                    self.class_timetable = json.loads(f.read())
+                    class_timetable = json.loads(f.read())
                     f.close()
             except Exception as e:
                 print(e.args)
                 print("时间配置文件 conf_classTime.json 似乎有点问题")
                 sys.exit()
         else:
+            self.first_classtable()
             try:
                 with open("./data/conf_classTime_summer.json", 'r', encoding='UTF-8') as f:
-                    self.class_timetable_first = json.loads(f.read())
+                    class_timetable_first = json.loads(f.read())
                     f.close()
                 with open("./data/conf_classTime_winter.json", 'r', encoding='UTF-8') as f:
-                    self.class_timetable_second = json.loads(f.read())
+                    class_timetable_second = json.loads(f.read())
                     f.close()
             except Exception as e:
                 print(e.args)
                 print("双作息时间配置文件似乎有点问题")
                 sys.exit()
             if self.dulStart:
-                self.class_timetable_first, self.class_timetable_second = self.class_timetable_second, self.class_timetable_first
+                class_timetable_first, class_timetable_second = class_timetable_second, class_timetable_first
 
         # 开始操作，先写入头
         ical_begin_base = f'''BEGIN:VCALENDAR
@@ -119,7 +137,7 @@ END:STANDARD
 END:VTIMEZONE
 '''
         try:
-            with open(f"res-{str(utc_now)}.ics", "w", encoding='UTF-8') as f:  # 追加要a
+            with open(self.file_name, "w", encoding='UTF-8') as f:  # 追加要a
                 f.write(ical_begin_base)
                 f.close()
         except:
@@ -156,9 +174,9 @@ END:VTIMEZONE
 
                 # 计算课程第一次开始、结束的时间，后面使用RRule重复即可，格式类似 20200225T120000
                 final_stime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
-                                  self.class_timetable_first[str(int(obj['ClassStartTimeId']))]["startTime"]
+                                  class_timetable_first[str(int(obj['ClassStartTimeId']))]["startTime"]
                 final_etime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
-                                  self.class_timetable_first[str(int(obj['ClassEndTimeId']))]["endTime"]
+                                  class_timetable_first[str(int(obj['ClassEndTimeId']))]["endTime"]
                 delta_week = 7 * int(self.dulWeek - obj["StartWeek"] - 1)
                 if (obj['WeekStatus'] == 1 and self.dulWeek % 2 == 1) or (
                         obj['WeekStatus'] == 2 and self.dulWeek % 2 == 0):
@@ -187,9 +205,9 @@ END:VTIMEZONE
                     extra_status = f'2;BYDAY={weekdays[int(obj["Weekday"] - 1)]}'  # BYDAY 是周 N，隔周重复需要带上
 
                 _final_stime_str = _first_time_obj.strftime("%Y%m%d") + "T" + \
-                                   self.class_timetable_second[str(int(obj['ClassStartTimeId']))]["startTime"]
+                                   class_timetable_second[str(int(obj['ClassStartTimeId']))]["startTime"]
                 _final_etime_str = _first_time_obj.strftime("%Y%m%d") + "T" + \
-                                   self.class_timetable_second[str(int(obj['ClassEndTimeId']))]["endTime"]
+                                   class_timetable_second[str(int(obj['ClassEndTimeId']))]["endTime"]
                 _delta_week = 7 * int(obj["EndWeek"] - self.dulWeek)
                 _stop_time_obj = _first_time_obj + timedelta(days=_delta_week + 1)
                 _stop_time_str = _stop_time_obj.strftime("%Y%m%dT%H%M%SZ")  # 注意是utc时间，直接+1天处理
@@ -216,20 +234,20 @@ TRIGGER:{self.a_trigger}\nX-WR-ALARMUID:{uid()}\nUID:{uid()}\nEND:VALARM\n'''
                 else:
                     _alarm_base = ""
                 ical_base = f'''\nBEGIN:VEVENT
-CREATED:{utc_now}\nDTSTAMP:{utc_now}\nSUMMARY:{obj["ClassName"]}
+CREATED:{self.utc_now}\nDTSTAMP:{self.utc_now}\nSUMMARY:{obj["ClassName"]}
 DESCRIPTION:{teacher}{serial}\nLOCATION:{obj["Classroom"]}
 TZID:Asia/Shanghai\nSEQUENCE:0\nUID:{uid()}\nRRULE:FREQ=WEEKLY;UNTIL={stop_time_str};INTERVAL={extra_status}
 DTSTART;TZID=Asia/Shanghai:{final_stime_str}\nDTEND;TZID=Asia/Shanghai:{final_etime_str}
 X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}END:VEVENT\n'''
                 _ical_base = f'''\nBEGIN:VEVENT
-CREATED:{utc_now}\nDTSTAMP:{utc_now}\nSUMMARY:{obj["ClassName"]}
+CREATED:{self.utc_now}\nDTSTAMP:{self.utc_now}\nSUMMARY:{obj["ClassName"]}
 DESCRIPTION:{teacher}{serial}\nLOCATION:{obj["Classroom"]}
 TZID:Asia/Shanghai\nSEQUENCE:0\nUID:{uid()}\nRRULE:FREQ=WEEKLY;UNTIL={_stop_time_str};INTERVAL={extra_status}
 DTSTART;TZID=Asia/Shanghai:{_final_stime_str}\nDTEND;TZID=Asia/Shanghai:{_final_etime_str}
 X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}END:VEVENT\n'''
 
                 # 写入文件
-                with open(f"res-{str(utc_now)}.ics", "a", encoding='UTF-8') as f:
+                with open(self.file_name, "a", encoding='UTF-8') as f:
                     f.write(ical_base)
                     f.write(_ical_base)
                     print(f"第{i}条课程信息写入成功！")
@@ -258,9 +276,9 @@ X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}END:VEVENT\n'''
 
                 # 计算课程第一次开始、结束的时间，后面使用RRule重复即可，格式类似 20200225T120000
                 final_stime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
-                                  self.class_timetable[str(int(obj['ClassStartTimeId']))]["startTime"]
+                                  class_timetable[str(int(obj['ClassStartTimeId']))]["startTime"]
                 final_etime_str = first_time_obj.strftime("%Y%m%d") + "T" + \
-                                  self.class_timetable[str(int(obj['ClassEndTimeId']))]["endTime"]
+                                  class_timetable[str(int(obj['ClassEndTimeId']))]["endTime"]
                 delta_week = 7 * int(obj["EndWeek"] - obj["StartWeek"])
                 stop_time_obj = first_time_obj + timedelta(days=delta_week + 1)
                 stop_time_str = stop_time_obj.strftime("%Y%m%dT%H%M%SZ")  # 注意是utc时间，直接+1天处理
@@ -286,33 +304,37 @@ X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}END:VEVENT\n'''
                 else:
                     _alarm_base = ""
                 _ical_base = f'''\nBEGIN:VEVENT
-CREATED:{utc_now}\nDTSTAMP:{utc_now}\nSUMMARY:{obj["ClassName"]}
+CREATED:{self.utc_now}\nDTSTAMP:{self.utc_now}\nSUMMARY:{obj["ClassName"]}
 DESCRIPTION:{teacher}{serial}\nLOCATION:{obj["Classroom"]}
 TZID:Asia/Shanghai\nSEQUENCE:0\nUID:{uid()}\nRRULE:FREQ=WEEKLY;UNTIL={stop_time_str};INTERVAL={extra_status}
 DTSTART;TZID=Asia/Shanghai:{final_stime_str}\nDTEND;TZID=Asia/Shanghai:{final_etime_str}
 X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC\n{_alarm_base}END:VEVENT\n'''
 
                 # 写入文件
-                with open(f"res-{str(utc_now)}.ics", "a", encoding='UTF-8') as f:
+                with open(self.file_name, "a", encoding='UTF-8') as f:
                     f.write(_ical_base)
                     print(f"第{i}条课程信息写入成功！")
                     i += 1
                     f.close()
 
+        # 写入周数指示器
+        if self.week_generate:
+            self.gen_week()
+
         # 拼合头尾
-        with open(f"res-{str(utc_now)}.ics", "a", encoding='UTF-8') as f:
+        with open(self.file_name, "a", encoding='UTF-8') as f:
             f.write("\nEND:VCALENDAR")
             print(f"尾部信息写入成功！")
             f.close()
 
         final_inform = f'''
-            最终文件 res-{str(utc_now)}.ics 已生成，可通过内网传输到 iOS Device 上使用。
+            最终文件 {self.file_name} 已生成，可通过内网传输到 iOS Device 上使用。
             方法：
             \t1. 在放置 ics 的目录下打开终端。
             \t2. 输入 python -m http.server 8000 或 python3 -m http.server 8000 搭建 HTTP 服务器
             \t3. 在 iOS Device 的 Safari 浏览器中输入：
             \t\t\t\t\t\thttp://{self.get_host_ip()}:8000/
-            \t4. 点击 res-{str(utc_now)}.ics，选择导入日历即可。'''
+            \t4. 点击 {self.file_name}，选择导入日历即可。'''
 
         print(final_inform)
 

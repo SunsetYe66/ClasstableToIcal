@@ -57,7 +57,7 @@ class ExcelReader:
         if self.config["isClassSerialEnabled"][0]:
             print(" ,", "Serial: ", self.config["isClassSerialEnabled"][1])
 
-        print("isClassTeacherEnabled: ", self.config["isClassTeacherEnabled"][0], end="")
+        print("isClassTeachserEnabled: ", self.config["isClassTeacherEnabled"][0], end="")
         if self.config["isClassTeacherEnabled"][0]:
             print(" ,", "Teacher: ", self.config["isClassTeacherEnabled"][1])
 
