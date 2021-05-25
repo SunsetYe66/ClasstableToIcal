@@ -193,16 +193,12 @@ END:VTIMEZONE
 
                 if obj['WeekStatus'] == 1:  # 单周
                     if self.dulWeek % 2 == 0:  # 若单周就不变，双周加7
-                        delta_time += 7
+                        _delta_time += 7
                 elif obj['WeekStatus'] == 2:  # 双周
                     if self.dulWeek % 2 != 0:  # 若双周就不变，单周加7
-                        delta_time += 7
+                        _delta_time += 7
                 # 处理完单双周之后 first_time_obj 就是真正开始的日期
                 _first_time_obj = initial_time + timedelta(days=_delta_time)
-                if obj["WeekStatus"] == 0:  # 处理隔周课程
-                    extra_status = "1"
-                else:
-                    extra_status = f'2;BYDAY={weekdays[int(obj["Weekday"] - 1)]}'  # BYDAY 是周 N，隔周重复需要带上
 
                 _final_stime_str = _first_time_obj.strftime("%Y%m%d") + "T" + \
                                    class_timetable_second[str(int(obj['ClassStartTimeId']))]["startTime"]
