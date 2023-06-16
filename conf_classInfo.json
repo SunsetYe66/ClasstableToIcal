@@ -1,0 +1,178 @@
+[
+    {
+        "ClassName": "离散数学",
+        "StartWeek": 1.0,
+        "EndWeek": 12.0,
+        "WeekStatus": 0.0,
+        "Weekday": 1.0,
+        "ClassStartTimeId": 1.0,
+        "ClassEndTimeId": 2.0,
+        "Classroom": "H4609",
+        "Teacher": "刘硕"
+    },
+    {
+        "ClassName": "Spark大数据技术",
+        "StartWeek": 11.0,
+        "EndWeek": 15.0,
+        "WeekStatus": 0.0,
+        "Weekday": 1.0,
+        "ClassStartTimeId": 5.0,
+        "ClassEndTimeId": 6.0,
+        "Classroom": "H2207",
+        "Teacher": "甘建红"
+    },
+    {
+        "ClassName": "体育篮球",
+        "StartWeek": 1.0,
+        "EndWeek": 15.0,
+        "WeekStatus": 1.0,
+        "Weekday": 2.0,
+        "ClassStartTimeId": 7.0,
+        "ClassEndTimeId": 8.0,
+        "Classroom": "二篮",
+        "Teacher": "陈桥"
+    },
+    {
+        "ClassName": "推荐系统",
+        "StartWeek": 1.0,
+        "EndWeek": 5.0,
+        "WeekStatus": 0.0,
+        "Weekday": 2.0,
+        "ClassStartTimeId": 9.0,
+        "ClassEndTimeId": 10.0,
+        "Classroom": "H1201",
+        "Teacher": "李雪冬"
+    },
+    {
+        "ClassName": "毛泽东思想和中国特色社会主义理论体系概率",
+        "StartWeek": 1.0,
+        "EndWeek": 16.0,
+        "WeekStatus": 0.0,
+        "Weekday": 2.0,
+        "ClassStartTimeId": 3.0,
+        "ClassEndTimeId": 4.0,
+        "Classroom": "H2208",
+        "Teacher": "李晓蓉"
+    },
+    {
+        "ClassName": "深度学习基础",
+        "StartWeek": 9.0,
+        "EndWeek": 15.0,
+        "WeekStatus": 0.0,
+        "Weekday": 1.0,
+        "ClassStartTimeId": 7.0,
+        "ClassEndTimeId": 8.0,
+        "Classroom": "H1201",
+        "Teacher": "何长春"
+    },
+    {
+        "ClassName": "深度学习基础",
+        "StartWeek": 9.0,
+        "EndWeek": 15.0,
+        "WeekStatus": 0.0,
+        "Weekday": 3.0,
+        "ClassStartTimeId": 5.0,
+        "ClassEndTimeId": 6.0,
+        "Classroom": "H2104",
+        "Teacher": "何长春"
+    },
+    {
+        "ClassName": "毛泽东思想和中国特色社会主义理论体系概率",
+        "StartWeek": 11.0,
+        "EndWeek": 16.0,
+        "WeekStatus": 0.0,
+        "Weekday": 4.0,
+        "ClassStartTimeId": 7.0,
+        "ClassEndTimeId": 8.0,
+        "Classroom": "H2208",
+        "Teacher": "李晓蓉"
+    },
+    {
+        "ClassName": "数字图像处理",
+        "StartWeek": 1.0,
+        "EndWeek": 8.0,
+        "WeekStatus": 0.0,
+        "Weekday": 4.0,
+        "ClassStartTimeId": 7.0,
+        "ClassEndTimeId": 8.0,
+        "Classroom": "H4503",
+        "Teacher": "高琳"
+    },
+    {
+        "ClassName": "Spark大数据技术",
+        "StartWeek": 11.0,
+        "EndWeek": 15.0,
+        "WeekStatus": 0.0,
+        "Weekday": 4.0,
+        "ClassStartTimeId": 3.0,
+        "ClassEndTimeId": 4.0,
+        "Classroom": "H2202",
+        "Teacher": "甘建红"
+    },
+    {
+        "ClassName": "信息可视化技术",
+        "StartWeek": 9.0,
+        "EndWeek": 14.0,
+        "WeekStatus": 0.0,
+        "Weekday": 4.0,
+        "ClassStartTimeId": 5.0,
+        "ClassEndTimeId": 6.0,
+        "Classroom": "H4504",
+        "Teacher": "高琳"
+    },
+    {
+        "ClassName": "推荐系统",
+        "StartWeek": 1.0,
+        "EndWeek": 5.0,
+        "WeekStatus": 0.0,
+        "Weekday": 4.0,
+        "ClassStartTimeId": 9.0,
+        "ClassEndTimeId": 10.0,
+        "Classroom": "H1201",
+        "Teacher": "李雪冬"
+    },
+    {
+        "ClassName": "数字图像处理",
+        "StartWeek": 1.0,
+        "EndWeek": 8.0,
+        "WeekStatus": 0.0,
+        "Weekday": 2.0,
+        "ClassStartTimeId": 5.0,
+        "ClassEndTimeId": 6.0,
+        "Classroom": "H4503",
+        "Teacher": "高琳"
+    },
+    {
+        "ClassName": "深度学习基础",
+        "StartWeek": 10.0,
+        "EndWeek": 15.0,
+        "WeekStatus": 0.0,
+        "Weekday": 5.0,
+        "ClassStartTimeId": 3.0,
+        "ClassEndTimeId": 4.0,
+        "Classroom": "H2201",
+        "Teacher": "何长春"
+    },
+    {
+        "ClassName": "离散数学",
+        "StartWeek": 1.0,
+        "EndWeek": 12.0,
+        "WeekStatus": 0.0,
+        "Weekday": 5.0,
+        "ClassStartTimeId": 7.0,
+        "ClassEndTimeId": 8.0,
+        "Classroom": "H1505",
+        "Teacher": "刘硕"
+    },
+    {
+        "ClassName": "形势与政策",
+        "StartWeek": 8.0,
+        "EndWeek": 11.0,
+        "WeekStatus": 0.0,
+        "Weekday": 5.0,
+        "ClassStartTimeId": 5.0,
+        "ClassEndTimeId": 6.0,
+        "Classroom": "H1207",
+        "Teacher": "胡培"
+    }
+]
