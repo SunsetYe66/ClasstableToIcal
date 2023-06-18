@@ -8,7 +8,7 @@
 
 import sys
 import json
-import xlrd
+# import xlrd
 import os
 from random import randint
 
@@ -34,6 +34,8 @@ class ExcelReader:
         except FileNotFoundError:
             print("文件不存在，请确认是否将课程信息前的 temp_ 去掉！")
             sys.exit()
+        except Exception as e:
+            print(e)
         self.table = self.data.sheets()[0]
         # 基础信息
         self.numOfRow = self.table.nrows  # 获取行数,即课程数
